@@ -10,20 +10,20 @@ int main (int argc, char **argv)
 {
   ros::init (argc, argv, "UandBdetect");
   ros::NodeHandle nh;
-  ros::Publisher pcl_pub = nh.advertise<sensor_msgs::LaserScan> ("pcl_output", 1);
+  ros::Publisher pcl_pub = nh.advertise<sensor_msgs::PointCloud2> ("pcl_output", 1);
   pcl::PointCloud<pcl::PointXYZ> cloud;
-  sensor_msgs::LaserScan output;
-  sensor_msgs::PointCloud2 cloud_msg;
+  sensor_msgs::LaserScan cloud_msg;
+  sensor_msgs::PointCloud2 output;
 
   //PCD read
-  pcl::io::loadPCDFile ("/home/zhanglei/Cart/lm/cartographer_detailed_comments_ws/scandata/1405076298.410586.pcd", cloud); //修改自己pcd文件所在路径
+  pcl::io::loadPCDFile ("/home/zhanglei/Cart/lm/cartographer_detailed_comments_ws/scandata/1405076409.295238.pcd", cloud); //修改自己pcd文件所在路径
   //Convert the cloud to ROS message
   //PCL -> PointCLoud2
-  pcl::toROSMsg(cloud, cloud_msg);
+  pcl::toROSMsg(cloud, output);
 
 
   output.header.frame_id = "horizontal_laser_link";
-  output.header.stamp = ros::Time::now();
+  //output.header.frame_id = "map";
   output.header.seq = 0;
 /*
     output.header = cloud_msg.header;
@@ -36,6 +36,7 @@ int main (int argc, char **argv)
     output.range_min = range_min_;
     output.range_max = range_max_;
 */
+/*
 
     float angle_min_ = -2.3518311977286475;
     float angle_max_ =  2.3518311977286475;
@@ -81,7 +82,7 @@ int main (int argc, char **argv)
       //output.ranges[index] = range;
       output.ranges.push_back(range);
     }
-
+*/
 
   ros::Rate loop_rate(40);
   while (ros::ok())
