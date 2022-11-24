@@ -9,22 +9,29 @@
 int main (int argc, char **argv)
 {
   ros::init (argc, argv, "UandBdetect");
+  //ros::NodeHandle nh;
   ros::NodeHandle nh;
   ros::Publisher pcl_pub = nh.advertise<sensor_msgs::PointCloud2> ("pcl_output", 1);
   pcl::PointCloud<pcl::PointXYZ> cloud;
   sensor_msgs::LaserScan cloud_msg;
   sensor_msgs::PointCloud2 output;
+    
+  std::string filename;
+
+  //nh.param<std::string>("param1",filename,"/home/zhanglei/Cart/lm/cartographer_detailed_comments_ws/scandata/1405076409.295238.pcd");
+
+
 
   //PCD read
-  pcl::io::loadPCDFile ("/home/zhanglei/Cart/lm/cartographer_detailed_comments_ws/scandata/1405076409.295238.pcd", cloud); //修改自己pcd文件所在路径
+  //pcl::io::loadPCDFile ("/home/zhanglei/Cart/lm/cartographer_detailed_comments_ws/scandata/1405076409.295238.pcd", cloud); //修改自己pcd文件所在路径
   //Convert the cloud to ROS message
   //PCL -> PointCLoud2
-  pcl::toROSMsg(cloud, output);
+  //pcl::toROSMsg(cloud, output);
 
 
-  output.header.frame_id = "horizontal_laser_link";
+  //output.header.frame_id = "horizontal_laser_link";
   //output.header.frame_id = "map";
-  output.header.seq = 0;
+  //output.header.seq = 0;
 /*
     output.header = cloud_msg.header;
 
@@ -83,13 +90,31 @@ int main (int argc, char **argv)
       output.ranges.push_back(range);
     }
 */
-
+int seq = 0;
   ros::Rate loop_rate(40);
   while (ros::ok())
   {
-      output.header.seq ++;
-      pcl_pub.publish(output);
+  
+      //Get Param的三种方法
+      //① ros::param::get()获取参数“param1”的value，写入到parameter1上
+      //ros::nh.param("param1", filename,"/home/zhanglei/Cart/lm/cartographer_detailed_comments_ws/scandata/1405076409.295238.pcd");
+      //nh.param<std::string>("param1",filename,"/home/zhanglei/Cart/lm/cartographer_detailed_comments_ws/scandata/1405076409.295238.pcd");
+
+      bool ifget1 = ros::param::get("param1", filename);
+      pcl::io::loadPCDFile (filename, cloud); //修改自己pcd文件所在路径
+      //Convert the cloud to ROS message
+      //PCL -> PointCLoud2
+      pcl::toROSMsg(cloud, output);
+
+      output.header.frame_id = "horizontal_laser_link";
+      //output.header.frame_id = "map";
+      seq++;
+      output.header.seq = seq;
+
+
       output.header.stamp = ros::Time::now();
+
+      pcl_pub.publish(output);
       ros::spinOnce();
       loop_rate.sleep();
   }
